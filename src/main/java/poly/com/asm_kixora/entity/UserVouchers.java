@@ -1,4 +1,4 @@
-package entity;
+package poly.com.asm_kixora.entity;
 
 import jakarta.persistence.*;
 
