@@ -14,7 +14,7 @@ import poly.com.asm_kixora.entity.Accounts;
 import java.util.Optional;
 
 @Controller
-public class Ctrl {
+public class LoginCtrl {
     @Autowired
     LoginRes res;
 
@@ -36,7 +36,7 @@ public class Ctrl {
 
     @RequestMapping("/trangchu/index")
     public String index() {
-        return "Home";
+        return "redirect:/home";
     }
 
     @RequestMapping("/login/check")
@@ -72,7 +72,7 @@ public class Ctrl {
 
 
         model.addAttribute("msg", "Tài khoản hoặc mật khẩu không chính xác!");
-        return "redirect:Login/login";
+        return "redirect:/home";
     }
 
     @RequestMapping("/login/logout")

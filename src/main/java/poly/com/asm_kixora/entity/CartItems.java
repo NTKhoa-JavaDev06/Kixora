@@ -1,23 +1,32 @@
 package poly.com.asm_kixora.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Entity
 @Table(name = "CartItems")
 public class CartItems {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Tự động tăng ID
     @Column(name = "Id")
     private Integer id;
 
-    @Column(name = "cart_id")
-    private Integer cartId;
+    // Thay vì lưu int, ta map quan hệ với bảng Cart
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
-    @Column(name = "variant_id")
-    private Integer variantId;
+    // Thay vì lưu int, ta map quan hệ với ProductVariants để lấy thông tin Size/Màu
+    @ManyToOne
+    @JoinColumn(name = "variant_id")
+    private ProductVariants productVariant;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -25,43 +34,11 @@ public class CartItems {
     @Column(name = "added_date")
     private LocalDateTime addedDate;
 
-    public Integer getId() {
-        return this.id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getCartId() {
-        return this.cartId;
-    }
-
-    public void setCartId(Integer cartId) {
-        this.cartId = cartId;
-    }
-
-    public Integer getVariantId() {
-        return this.variantId;
-    }
-
-    public void setVariantId(Integer variantId) {
-        this.variantId = variantId;
-    }
-
-    public Integer getQuantity() {
-        return this.quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public LocalDateTime getAddedDate() {
-        return this.addedDate;
-    }
-
-    public void setAddedDate(LocalDateTime addedDate) {
-        this.addedDate = addedDate;
+    public Double totalAmount(){
+        if(productVariant != null && productVariant.getProduct() != null){
+            double price = productVariant.getProduct().getPrice().doubleValue();
+            return price * quantity;
+        }
+        return 0.0;
     }
 }

@@ -1,45 +1,33 @@
 package poly.com.asm_kixora.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Entity
 @Table(name = "Cart")
 public class Cart {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Quan trọng: Tự động tăng ID
     @Column(name = "Id")
     private Integer id;
 
-    @Column(name = "UserId")
-    private Integer userId;
+    // Thay vì lưu Integer userId, ta map trực tiếp với bảng Accounts
+    @ManyToOne
+    @JoinColumn(name = "UserId")
+    private Accounts account;
 
     @Column(name = "CreatedDate")
     private LocalDateTime createdDate;
 
-    public Integer getId() {
-        return this.id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return this.userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return this.createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
+    // (Optional) Map ngược lại để từ Cart lấy được danh sách CartItems bên trong
+    @OneToMany(mappedBy = "cart")
+    private List<CartItems> cartItems;
 }

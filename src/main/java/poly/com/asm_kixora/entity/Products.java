@@ -1,123 +1,40 @@
 package poly.com.asm_kixora.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Entity
 @Table(name = "Products")
 public class Products {
     @Id
-    @Column(name = "Id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "Name")
     private String name;
 
-    @Column(name = "BrandId")
-    private Integer brandId;
-
-    @Column(name = "Material")
     private String material;
-
-    @Column(name = "Gender")
     private String gender;
-
-    @Column(name = "Price")
     private BigDecimal price;
-
-    @Column(name = "Image")
     private String image;
-
-    @Column(name = "Available")
     private Boolean available;
 
     @Column(name = "CreatedDate")
     private LocalDateTime createdDate;
 
-    @Column(name = "CategoryId")
-    private Integer categoryId;
+    // Quan hệ với Category (Bạn đã làm)
+    @ManyToOne
+    @JoinColumn(name = "CategoryId")
+    private Categories category;
 
-    public Integer getId() {
-        return this.id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getBrandId() {
-        return this.brandId;
-    }
-
-    public void setBrandId(Integer brandId) {
-        this.brandId = brandId;
-    }
-
-    public String getMaterial() {
-        return this.material;
-    }
-
-    public void setMaterial(String material) {
-        this.material = material;
-    }
-
-    public String getGender() {
-        return this.gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public BigDecimal getPrice() {
-        return this.price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public String getImage() {
-        return this.image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public Boolean getAvailable() {
-        return this.available;
-    }
-
-    public void setAvailable(Boolean available) {
-        this.available = available;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return this.createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Integer getCategoryId() {
-        return this.categoryId;
-    }
-
-    public void setCategoryId(Integer categoryId) {
-        this.categoryId = categoryId;
-    }
+    // Quan hệ với Brand (Mới dựa trên DB)
+    @ManyToOne
+    @JoinColumn(name = "BrandId")
+    private Brand brand;
 }
