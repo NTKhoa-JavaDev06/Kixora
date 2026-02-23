@@ -62,10 +62,10 @@ public class LoginCtrl {
 
                 if ("Admin".equalsIgnoreCase(acc.getRole())) {
                     model.addAttribute("msg", "Chào Admin!");
-                      return "/admin/adminform";
+                      return "redirect:/admin/dashboard";
                 } else {
                     model.addAttribute("msg", "Đăng nhập thành công!");
-                    return "redirect:/trangchu/index";
+                    return "Home";
                 }
             }
         }

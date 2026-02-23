@@ -1,10 +1,17 @@
 package poly.com.asm_kixora.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data; // Thêm dòng này
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
+@Data // Đặt ở đây để nó tự sinh Getter/Setter cho toàn bộ class
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "Vouchers")
 public class Vouchers {
@@ -24,43 +31,7 @@ public class Vouchers {
     @Column(name = "CreatedDate")
     private LocalDateTime createdDate;
 
-    public String getCode() {
-        return this.code;
-    }
+    @OneToMany(mappedBy = "voucher")
+    private List<UserVouchers> userVouchers;
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public BigDecimal getDiscountAmount() {
-        return this.discountAmount;
-    }
-
-    public void setDiscountAmount(BigDecimal discountAmount) {
-        this.discountAmount = discountAmount;
-    }
-
-    public LocalDateTime getExpiryDate() {
-        return this.expiryDate;
-    }
-
-    public void setExpiryDate(LocalDateTime expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
-    public Boolean getIsActive() {
-        return this.isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return this.createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
 }

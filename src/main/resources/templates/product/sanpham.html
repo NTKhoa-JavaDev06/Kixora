@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kixora - Các sản phẩm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --primary-green: #0f9d58; }
+        body { background-color: #f8f9fa; font-family: 'Poppins', sans-serif; }
+        .sidebar-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .filter-title { font-weight: 700; font-size: 15px; margin-bottom: 15px; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+
+        /* Size & Color */
+        .size-box { width: 45px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px !important; font-weight: 600; cursor: pointer; }
+        .btn-check:checked + .size-box { background-color: var(--primary-green) !important; border-color: var(--primary-green) !important; color: white !important; }
+        .color-check { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid #ddd; position: relative; transition: all 0.2s; }
+        .color-check:checked { border: 2px solid var(--primary-green); transform: scale(1.1); }
+        .color-check:checked::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; }
+
+        /* Product Card */
+        .product-card { background: white; border-radius: 15px; overflow: hidden; transition: 0.3s; border: none; height: 100%; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .product-image-wrapper { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; padding: 15px; background-color: #f9f9f9; }
+        .product-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .product-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 45px; font-size: 14px; margin-bottom: 10px; }
+
+        /* Custom Pagination */
+        .pagination .page-item.active .page-link { background-color: var(--primary-green); border-color: var(--primary-green); color: white; }
+        .pagination .page-link { color: #333; border-radius: 8px; margin: 0 3px; }
+        body {
+            padding-top: 65px !important;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="navigationsanpham :: header" ></div>
+<div class="container py-5">
+    <div class="row">
+        <aside class="col-lg-3">
+            <div class="sidebar-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0">BỘ LỌC</h5>
+                    <a href="/sanpham" class="text-decoration-none small text-muted">Xóa tất cả</a>
+                </div>
+
+                <div class="filter-title"><i class="fa-solid fa-venus-mars me-2"></i> Giới tính</div>
+                <div class="mb-4">
+                    <div class="form-check" th:each="g : ${allGenders}">
+                        <input class="form-check-input filter-checkbox" type="checkbox"
+                               th:id="'gender_' + ${g}" th:data-param="gender" th:data-value="${g}"
+                               th:checked="${param.gender != null and #lists.contains(param.gender, g)}">
+                        <label class="form-check-label" th:for="'gender_' + ${g}" th:text="${g}"></label>
+                    </div>
+                </div>
+
+                <div class="filter-title mt-2"><i class="fa-solid fa-mitten me-2"></i> Chất liệu</div>
+                <div class="mb-4">
+                    <select class="form-select form-select-sm shadow-none" onchange="applySingleFilter('material', this.value)">
+                        <option value="">Tất cả chất liệu</option>
+                        <option th:each="m : ${allMaterials}" th:value="${m}" th:text="${m}"
+                                th:selected="${param.material != null and param.material[0] == m}"></option>
+                    </select>
+                </div>
+
+                <div class="filter-title mt-2"><i class="fa-solid fa-ruler-horizontal me-2"></i> Kích cỡ</div>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <th:block th:each="s : ${allSizes}">
+                        <input type="checkbox" class="btn-check filter-checkbox"
+                               th:id="'size_' + ${s}" th:data-param="size" th:data-value="${s}"
+                               th:checked="${param.size != null and #lists.contains(param.size, s)}">
+                        <label class="btn btn-outline-secondary btn-sm size-box" th:for="'size_' + ${s}" th:text="${s}"></label>
+                    </th:block>
+                </div>
+
+                <div class="filter-title mt-2"><i class="fa-solid fa-palette me-2"></i> Màu sắc</div>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <div class="color-item text-center" th:each="c : ${allColors}">
+                        <input type="checkbox" class="color-check filter-checkbox"
+                               th:id="'color_' + ${c}" th:data-param="color" th:data-value="${c}"
+                               th:checked="${param.color != null and #lists.contains(param.color, c)}"
+                               th:style="'background-color:' + ${c.toLowerCase()}">
+                        <label th:for="'color_' + ${c}" class="d-block small mt-1" th:text="${c}" style="font-size: 10px;"></label>
+                    </div>
+                </div>
+                <div class="filter-title mt-2"><i class="fa-solid fa-copyright me-2"></i> Thương hiệu</div>
+                <div class="mb-4">
+                    <div class="form-check" th:each="b : ${allBrands}">
+                        <input class="form-check-input filter-checkbox" type="checkbox"
+                               th:id="'brand_' + ${b.id}" th:data-param="bid" th:data-value="${b.id}"
+                               th:checked="${param.bid != null and #lists.contains(param.bid, b.id.toString())}">
+                        <label class="form-check-label" th:for="'brand_' + ${b.id}" th:text="${b.name}"></label>
+                    </div>
+                </div>
+
+                <div class="filter-title mt-2"><i class="fa-solid fa-list me-2"></i> Danh mục</div>
+                <div class="mb-4">
+                    <div class="form-check" th:each="c : ${allCategories}">
+                        <input class="form-check-input filter-checkbox" type="checkbox"
+                               th:id="'cat_' + ${c.id}" th:data-param="cid" th:data-value="${c.id}"
+                               th:checked="${param.cid != null and #lists.contains(param.cid, c.id.toString())}">
+                        <label class="form-check-label" th:for="'cat_' + ${c.id}" th:text="${c.name}"></label>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <main class="col-lg-9">
+            <div class="row g-4">
+                <div class="col-md-4 col-6" th:each="p : ${items}">
+                    <div class="product-card shadow-sm">
+                        <div class="product-image-wrapper">
+                            <img th:src="@{${#strings.startsWith(p.image, 'http') ? p.image : '/hinhanh/' + p.image}}" alt="Product">
+                        </div>
+                        <div class="card-body p-3">
+                            <p class="text-muted small mb-1" th:text="${p.category.name}">Category</p>
+                            <h6 class="product-name fw-bold" th:text="${p.name}">Product Name</h6>
+                            <p class="text-primary fw-bold" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+                            <a th:href="@{/product/detail(id=${p.id})}" class="btn btn-outline-dark btn-sm w-100 rounded-pill mt-auto">Chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(items)}">
+                    <i class="fa-solid fa-magnifying-glass fs-1 text-muted mb-3"></i>
+                    <h5>Không tìm thấy sản phẩm phù hợp</h5>
+                </div>
+            </div>
+
+            <nav aria-label="Page navigation" class="mt-5" th:if="${page.totalPages > 1}">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                        <a class="page-link shadow-none" href="#" th:onclick="changePage(0, event)">Đầu</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                        th:classappend="${page.number == i} ? 'active'">
+                        <a class="page-link shadow-none" href="#" th:onclick="'changePage(' + ${i} + ', event)'" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                        <a class="page-link shadow-none" href="#" th:onclick="'changePage(' + ${page.totalPages - 1} + ', event)'">Cuối</a>
+                    </li>
+                </ul>
+            </nav>
+        </main>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.filter-checkbox').on('change', function() {
+            applyFilter($(this).data('param'), $(this).data('value'));
+        });
+    });
+
+    function applyFilter(paramName, paramValue) {
+        const url = new URL(window.location.href);
+        const valStr = paramValue.toString();
+        let params = url.searchParams.getAll(paramName);
+
+        if (params.includes(valStr)) {
+            params = params.filter(v => v !== valStr);
+        } else {
+            params.push(valStr);
+        }
+
+        url.searchParams.delete(paramName);
+        params.forEach(v => url.searchParams.append(paramName, v));
+        url.searchParams.delete('p'); // Reset trang khi lọc
+        window.location.href = url.toString();
+    }
+
+    function applySingleFilter(paramName, paramValue) {
+        const url = new URL(window.location.href);
+        if (paramValue) url.searchParams.set(paramName, paramValue);
+        else url.searchParams.delete(paramName);
+        url.searchParams.delete('p');
+        window.location.href = url.toString();
+    }
+
+
+    function changePage(pageIndex, event) {
+        event.preventDefault();
+        const url = new URL(window.location.href);
+        url.searchParams.set('p', pageIndex);
+        window.location.href = url.toString();
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

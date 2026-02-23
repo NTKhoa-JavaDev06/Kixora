@@ -19,7 +19,7 @@ public class Cart {
     @Column(name = "Id")
     private Integer id;
 
-    // Thay vì lưu Integer userId, ta map trực tiếp với bảng Accounts
+
     @ManyToOne
     @JoinColumn(name = "UserId")
     private Accounts account;
@@ -30,4 +30,12 @@ public class Cart {
     // (Optional) Map ngược lại để từ Cart lấy được danh sách CartItems bên trong
     @OneToMany(mappedBy = "cart")
     private List<CartItems> cartItems;
+
+    public void setUserId(Integer userId) {
+        if (userId != null) {
+            Accounts acc = new Accounts();
+            acc.setId(userId);
+            this.account = acc;
+        }
+    }
 }

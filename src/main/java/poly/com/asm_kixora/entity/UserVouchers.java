@@ -1,12 +1,22 @@
 package poly.com.asm_kixora.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "UserVouchers")
+@IdClass(UserVouchers.UserVoucherId.class)
 public class UserVouchers {
+
     @Id
     @Column(name = "UserId")
     private Integer userId;
@@ -14,6 +24,11 @@ public class UserVouchers {
     @Id
     @Column(name = "VoucherCode")
     private String voucherCode;
+
+    // THÊM ĐOẠN NÀY ĐỂ FIX LỖI: Liên kết trở lại bảng Vouchers
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "VoucherCode", referencedColumnName = "Code", insertable = false, updatable = false)
+    private Vouchers voucher;
 
     @Column(name = "AssignedAt")
     private LocalDateTime assignedAt;
@@ -24,43 +39,22 @@ public class UserVouchers {
     @Column(name = "UsedAt")
     private LocalDateTime usedAt;
 
-    public Integer getUserId() {
-        return this.userId;
-    }
+    // ... (Giữ nguyên class UserVoucherId bên dưới) ...
+    public static class UserVoucherId implements Serializable {
+        private Integer userId;
+        private String voucherCode;
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            UserVoucherId that = (UserVoucherId) o;
+            return Objects.equals(userId, that.userId) && Objects.equals(voucherCode, that.voucherCode);
+        }
 
-    public String getVoucherCode() {
-        return this.voucherCode;
-    }
-
-    public void setVoucherCode(String voucherCode) {
-        this.voucherCode = voucherCode;
-    }
-
-    public LocalDateTime getAssignedAt() {
-        return this.assignedAt;
-    }
-
-    public void setAssignedAt(LocalDateTime assignedAt) {
-        this.assignedAt = assignedAt;
-    }
-
-    public Boolean getIsUsed() {
-        return this.isUsed;
-    }
-
-    public void setIsUsed(Boolean isUsed) {
-        this.isUsed = isUsed;
-    }
-
-    public LocalDateTime getUsedAt() {
-        return this.usedAt;
-    }
-
-    public void setUsedAt(LocalDateTime usedAt) {
-        this.usedAt = usedAt;
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, voucherCode);
+        }
     }
 }

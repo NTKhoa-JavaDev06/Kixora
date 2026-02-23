@@ -8,9 +8,13 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
+
 @Table(name = "Orders")
 public class Orders {
     @Id
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "Id")
     private Integer id;
 

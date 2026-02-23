@@ -1,15 +1,15 @@
 package poly.com.asm_kixora.Product;
 
 import poly.com.asm_kixora.entity.CartItem;
-
-import java.util.Collection;
+import java.util.List;
 
 public interface ShoppingCartService {
-    void add(CartItem item);
-    void remove(Integer id);
-    CartItem update(Integer id, int qty); // Cập nhật số lượng
-    void clear();                       // Xóa sạch giỏ hàng
-    Collection<CartItem> getItems();    // Lấy tất cả mặt hàng
-    int getCount();                     // Tổng số lượng (ví dụ: 3 cái áo)
-    double getAmount();
+    void add(Integer userId, Integer variantId, int quantity);
+    void remove(Integer userId, Integer variantId);
+    void update(Integer userId, Integer variantId, int qty);
+    void clear(Integer userId);
+
+    List<CartItem> getItems(Integer userId);
+    int getCount(Integer userId);
+    double getAmount(Integer userId);
 }

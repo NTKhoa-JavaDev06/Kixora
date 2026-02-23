@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Săn Voucher Khủng - KIXORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .voucher-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            display: flex;
+            background-color: white;
+            height: 100%;
+        }
+        .voucher-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+
+        /* Phần viền răng cưa bên trái thẻ */
+        .voucher-left {
+            background: linear-gradient(135deg, #0f9d58, #0b7a44);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 35%;
+            border-right: 2px dashed rgba(255,255,255,0.6);
+            position: relative;
+        }
+        /* Cắt nửa hình tròn để tạo hiệu ứng cuống vé */
+        .voucher-left::before, .voucher-left::after {
+            content: ''; position: absolute; right: -12px; width: 24px; height: 24px;
+            background-color: #f8f9fa; border-radius: 50%;
+        }
+        .voucher-left::before { top: -12px; }
+        .voucher-left::after { bottom: -12px; }
+
+        .voucher-right {
+            padding: 20px; width: 65%;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .copy-btn { border-radius: 20px; font-weight: 600; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div th:replace="navigationsanpham :: header"></div>
+
+<div class="container py-5" style="margin-top: 80px;">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-success"><i class="fa-solid fa-fire me-2"></i>KHO VOUCHER KIXORA</h2>
+        <p class="text-muted">Nhanh tay lưu mã vào ví, số lượng có hạn!</p>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i><span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6 col-md-12" th:each="v : ${vouchers}">
+            <div class="voucher-card">
+                <div class="voucher-left text-center">
+                    <span class="fs-6 fw-semibold mb-1">GIẢM NGAY</span>
+                    <h3 class="fw-bold m-0" th:text="${#numbers.formatDecimal(v.discountAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">100,000₫</h3>
+                </div>
+                <div class="voucher-right">
+                    <h5 class="fw-bold mb-1 text-dark" th:text="'Mã: ' + ${v.code}">Mã: KIXORAVIP</h5>
+                    <p class="text-muted small mb-3">
+                        <i class="fa-regular fa-clock me-1"></i>HSD: <span th:text="${#temporals.format(v.expiryDate, 'dd/MM/yyyy HH:mm')}">31/12/2026</span>
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success">Đang diễn ra</span>
+
+                        <th:block th:if="${savedCodes != null and #lists.contains(savedCodes, v.code)}">
+                            <button class="btn btn-secondary btn-sm copy-btn px-4 shadow-sm" disabled>
+                                Đã lưu
+                            </button>
+                        </th:block>
+
+                        <th:block th:unless="${savedCodes != null and #lists.contains(savedCodes, v.code)}">
+                            <a th:href="@{/luu-voucher(code=${v.code})}" class="btn btn-danger btn-sm copy-btn px-4 shadow-sm">
+                                Lưu Mã
+                            </a>
+                        </th:block>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(vouchers)}">
+            <i class="fa-solid fa-box-open fs-1 text-muted mb-3"></i>
+            <h5 class="text-muted">Hiện tại chưa có mã giảm giá nào. Bro quay lại sau nhé!</h5>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

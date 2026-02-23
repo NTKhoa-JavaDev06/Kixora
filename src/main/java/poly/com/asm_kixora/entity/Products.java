@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -28,13 +30,16 @@ public class Products {
     @Column(name = "CreatedDate")
     private LocalDateTime createdDate;
 
-    // Quan hệ với Category (Bạn đã làm)
     @ManyToOne
     @JoinColumn(name = "CategoryId")
     private Categories category;
 
-    // Quan hệ với Brand (Mới dựa trên DB)
     @ManyToOne
     @JoinColumn(name = "BrandId")
     private Brand brand;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductVariants> productVariants;
+
+
 }

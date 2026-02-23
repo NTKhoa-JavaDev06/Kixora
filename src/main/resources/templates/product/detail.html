@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${p.name}">Chi tiết sản phẩm - KIXORA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --light-green: #eafaf1;
+        }
+
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
+
+        .price-text {
+            font-size: 32px; font-weight: 800; color: var(--primary-green);
+            background: var(--light-green); padding: 15px 25px; border-radius: 12px;
+            display: inline-block; width: 100%;
+        }
+
+        .variant-input { display: none; }
+        .variant-label {
+            border: 2px solid #eee; padding: 10px 20px; margin: 0 10px 10px 0;
+            cursor: pointer; background: white; border-radius: 8px;
+            transition: all 0.2s ease; font-weight: 500;
+        }
+        .variant-label:hover { border-color: var(--primary-green); color: var(--primary-green); }
+        .variant-input:checked + .variant-label {
+            border-color: var(--primary-green); background-color: var(--primary-green);
+            color: white; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-green-outline {
+            border: 2px solid var(--primary-green); color: var(--primary-green);
+            font-weight: 700; transition: all 0.3s;
+        }
+        .btn-green-outline:hover { background: var(--primary-green); color: white; }
+
+        .btn-green-solid {
+            background: var(--primary-green); color: white; border: none;
+            font-weight: 700; transition: all 0.3s;
+        }
+        .btn-green-solid:hover { background: var(--dark-green); transform: translateY(-2px); }
+
+        .text-green { color: var(--primary-green); }
+    </style>
+</head>
+<body>
+<header><div th:replace="~{navigation :: header}"> </div></header>
+
+<div class="container mt-5 mb-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/home}" class="text-decoration-none text-muted">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-green fw-bold" th:text="${p.name}">Tên sản phẩm</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <div class="col-md-5">
+            <div class="sticky-top" style="top: 100px;">
+                <img th:src="@{${(p.image != null and #strings.startsWith(p.image, 'http')) ? p.image : '/hinhanh/' + (p.image != null ? p.image : 'R.jpg')}}"
+                     class="img-fluid rounded-4 shadow-sm border" alt="Product">
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <h2 class="fw-bold mb-2" th:text="${p.name}">Tên sản phẩm</h2>
+            <div class="d-flex align-items-center mb-4 text-muted">
+                <div class="text-warning me-2 small">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <span>(1.2k Đánh giá) | Đã bán 2.5k</span>
+            </div>
+
+            <div class="price-text mb-4">
+                <span id="displayPrice" th:data-base-price="${p.price}"
+                      th:text="'₫' + ${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}">₫0</span>
+            </div>
+
+            <form th:action="@{/cart/add}" method="post" id="productForm">
+                <input type="hidden" name="productId" th:value="${p.id}">
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Chọn kích cỡ & màu sắc:</h6>
+                    <div th:each="v : ${variants}" class="d-inline-block">
+                        <input type="radio" name="variantId" th:id="'var_'+${v.id}" th:value="${v.id}" class="variant-input" required>
+                        <label th:for="'var_'+${v.id}" class="variant-label shadow-sm" th:text="${v.color} + ' / ' + ${v.size}"></label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Số lượng:</h6>
+                    <div class="input-group shadow-sm" style="width: 160px;">
+                        <button class="btn btn-outline-secondary px-3" type="button" onclick="changeQty(-1)">-</button>
+                        <input type="number" name="quantity" id="quantityInput" class="form-control text-center fw-bold border-secondary" value="1" min="1" max="99">
+                        <button class="btn btn-outline-secondary px-3" type="button" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6">
+                        <button type="submit" class="btn btn-green-outline btn-lg w-100 py-3 rounded-3">
+                            <i class="fas fa-cart-plus me-2"></i>Thêm giỏ hàng
+                        </button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button type="button" onclick="buyNowDirect()" class="btn btn-green-solid btn-lg w-100 py-3 rounded-3 shadow">
+                            MUA NGAY <i class="fas fa-chevron-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="mt-5 p-4 bg-white rounded-3 shadow-sm">
+                <h6 class="fw-bold border-bottom pb-2 mb-3"><i class="fas fa-info-circle text-green me-2"></i>Thông tin chi tiết</h6>
+                <div class="row small text-muted">
+                    <div class="col-6 mb-2">Chất liệu: <strong th:text="${p.material}"></strong></div>
+                    <div class="col-6 mb-2">Thương hiệu: <strong th:text="${p.brand != null ? p.brand.name : 'Kixora'}"></strong></div>
+                    <div class="col-6">Giới tính: <strong th:text="${p.gender}"></strong></div>
+                    <div class="col-6">Trạng thái: <strong class="text-green">Còn hàng</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const priceElement = document.getElementById('displayPrice');
+    const quantityInput = document.getElementById('quantityInput');
+    const basePrice = parseFloat(priceElement.getAttribute('data-base-price'));
+
+    // 1. Hàm cập nhật giá hiển thị khi đổi số lượng
+    function updatePrice() {
+        const qty = parseInt(quantityInput.value) || 1;
+        const total = basePrice * qty;
+        priceElement.innerText = '₫' + total.toLocaleString('vi-VN');
+    }
+
+    // 2. Hàm tăng giảm số lượng
+    window.changeQty = function(amt) {
+        let current = parseInt(quantityInput.value) || 1;
+        let newVal = current + amt;
+        if (newVal >= 1 && newVal <= 99) {
+            quantityInput.value = newVal;
+            updatePrice();
+        }
+    };
+
+    // 3. Hàm MUA NGAY - Chìa khóa quan trọng nhất
+    window.buyNowDirect = function() {
+        // Tìm radio variantId được chọn
+        const selectedVariant = document.querySelector('input[name="variantId"]:checked');
+
+        if (!selectedVariant) {
+            alert("Bro ơi, vui lòng chọn Size và Màu trước khi Mua ngay nhé!");
+            return;
+        }
+
+        const variantId = selectedVariant.value;
+        const quantity = quantityInput.value;
+
+        // Ép trình duyệt chuyển hướng qua đường dẫn GET để chắc chắn Controller nhận được
+        // URL mẫu: /cart/add?variantId=10&quantity=1&redirect=checkout
+        const url = '/cart/add?variantId=' + variantId + '&quantity=' + quantity + '&redirect=checkout';
+
+        console.log("Đang đẩy sang URL:", url);
+        window.location.href = url;
+    };
+
+    // Lắng nghe sự kiện thay đổi trực tiếp trên ô input số lượng
+    quantityInput.addEventListener('input', updatePrice);
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>KIXORA Admin - Quản lý đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --admin-green: #2ecc71; --dark-bg: #2c3e50; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        .sidebar { min-height: 100vh; background: var(--dark-bg); width: 260px; position: fixed; }
+        .sidebar .nav-link { color: #a4b0be; padding: 15px 25px; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #34495e; color: var(--admin-green); border-left: 4px solid var(--admin-green); }
+        .main-content { margin-left: 260px; padding: 40px; }
+        .badge-pending { background-color: #f1c40f; color: #000; }
+        .badge-confirmed { background-color: #3498db; }
+        .badge-done { background-color: #2ecc71; }
+        .badge-cancelled { background-color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="p-4"><h3 class="text-white fw-bold">KIXORA <span class="text-success text-xs">PRO</span></h3></div>
+    <nav class="nav flex-column">
+        <a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-home me-2"></i> Dashboard</a>
+        <a class="nav-link" th:href="@{/admin/products}"><i class="fas fa-box me-2"></i> Sản phẩm</a>
+        <a class="nav-link active" th:href="@{/admin/orders}"><i class="fas fa-shopping-cart me-2"></i> Đơn hàng</a>
+        <a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users me-2"></i> Người dùng</a>
+    </nav>
+</div>
+
+<div class="main-content">
+    <h2 class="fw-bold mb-4 text-dark">Quản lý đơn hàng</h2>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="text-muted small">
+                <tr>
+                    <th>MÃ ĐƠN</th>
+                    <th>NGÀY ĐẶT</th>
+                    <th>THANH TOÁN</th>
+                    <th>TỔNG TIỀN</th>
+                    <th>TRẠNG THÁI</th>
+                    <th>HÀNH ĐỘNG</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o : ${orders}">
+                    <td th:text="'#' + ${o.id}" class="fw-bold"></td>
+                    <td th:text="${#temporals.format(o.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${o.paymentStatus}"></td>
+                    <td class="text-success fw-bold" th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
+                    <td>
+                        <form th:action="@{/admin/orders/update-status}" method="post" class="d-inline">
+                            <input type="hidden" name="orderId" th:value="${o.id}">
+                            <select name="status" onchange="this.form.submit()" class="form-select form-select-sm d-inline-block w-auto border-0 shadow-sm rounded-pill">
+                                <option value="Pending" th:selected="${o.status == 'Pending'}">Pending</option>
+                                <option value="Confirmed" th:selected="${o.status == 'Confirmed'}">Confirmed</option>
+                                <option value="Done" th:selected="${o.status == 'Done'}">Done</option>
+                                <option value="Cancelled" th:selected="${o.status == 'Cancelled'}">Cancelled</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <a th:href="@{/admin/orders/detail/{id}(id=${o.id})}" class="btn btn-sm btn-light border">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

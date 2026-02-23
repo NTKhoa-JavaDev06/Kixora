@@ -1,157 +1,775 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Green Store - Trang Chủ</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-green: #28a745;
-            --black-bg: #1a1a1a;
-        }
-        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
+    <!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Green Store - Trang Chủ</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        /* Product Card */
-        .product-card {
-            transition: all 0.3s ease;
-            border: none;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
+        <style>
 
-        .product-name {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            font-size: 14px;
-            font-weight: 600;
-            height: 40px;
-            color: #333;
-            margin-bottom: 10px;
-        }
+            /* --- FEATURED POSTS (DYNAMICS) --- */
+            .featured-post-card {
+                height: 280px;
+                border-radius: 24px;
+                background: white;
+                display: flex;
+                align-items: center;
+                padding: 30px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                border: none;
+            }
 
-        .price-tag { color: var(--primary-green); font-size: 18px; font-weight: 700; }
 
-        .btn-green {
-            background-color: var(--black-bg);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-        .btn-green:hover { background-color: var(--primary-green); color: white; }
 
-        /* Sidebar */
-        .filter-title { font-weight: 700; color: var(--black-bg); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .filter-item {
-            font-size: 14px;
-            color: #555;
-            text-decoration: none;
-            display: block;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-        }
-        .filter-item:hover, .filter-item.active {
-            background-color: var(--primary-green);
-            color: white;
-            font-weight: 600;
-        }
+            .spotlight-left {
+                background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            }
 
-        @media (min-width: 992px) { .col-lg-2-4 { flex: 0 0 auto; width: 20%; } }
-    </style>
-</head>
+            .spotlight-right {
+                background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            }
 
-<body>
-<div th:replace="~{navigation :: header}"></div>
+            .post-content {
+                flex: 1.2;
+                z-index: 2;
+            }
 
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div id="shopeeBanner" class="carousel slide shadow-sm rounded-4 overflow-hidden" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div th:each="b, iter : ${banners}" class="carousel-item" th:classappend="${iter.index == 0} ? 'active'">
-                        <img th:src="@{${(b.image != null and #strings.startsWith(b.image, 'http')) ? b.image : '/hinhanh/' + b.image}}"
-                             class="d-block w-100" style="height: 350px; object-fit: cover;">
+            .post-content h3 {
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+                color: #1f2937;
+            }
+
+            .post-img {
+                flex: 0.8;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .post-img img {
+                max-width: 130%; /* Làm ảnh to ra một chút để tạo độ sâu */
+                max-height: 220px;
+                object-fit: contain;
+
+                transition: all 0.5s ease;
+                filter: drop-shadow(10px 15px 25px rgba(0,0,0,0.15));
+            }
+
+
+
+            /* Fix mobile */
+            @media (max-width: 768px) {
+                .featured-post-card {
+                    height: auto;
+                    flex-direction: column;
+                    text-align: center;
+                    padding: 25px;
+                }
+                .post-img img {
+                    max-width: 80%;
+                    transform: none;
+                    margin-top: 20px;
+                }
+            }
+            /* --- MODERN CTA BANNER --- */
+            .cta-banner {
+                background: linear-gradient(135deg, #0f9d58 0%, #0b7a43 100%);
+                border-radius: 40px;
+                padding: 80px 60px;
+                color: white;
+                margin: 80px 0;
+                position: relative;
+                overflow: hidden;
+                z-index: 1;
+            }
+
+            /* Các vòng tròn trang trí mờ ảo */
+            .cta-banner::before, .cta-banner::after {
+                content: "";
+                position: absolute;
+                border-radius: 50%;
+                z-index: -1;
+                filter: blur(80px);
+            }
+
+            .cta-banner::before {
+                width: 300px;
+                height: 300px;
+                background: rgba(255, 255, 255, 0.1);
+                top: -100px;
+                right: -50px;
+            }
+
+            .cta-banner::after {
+                width: 200px;
+                height: 200px;
+                background: rgba(0, 0, 0, 0.2);
+                bottom: -50px;
+                left: -20px;
+            }
+
+            .cta-banner h2 {
+                font-size: 2.5rem;
+                letter-spacing: -1px;
+            }
+
+            /* Style cho Input Email */
+            .cta-input-group {
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+                padding: 8px;
+                border-radius: 50px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                display: flex;
+                transition: all 0.3s ease;
+            }
+
+            .cta-input-group:focus-within {
+                background: rgba(255, 255, 255, 0.25);
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+
+            .cta-input-group input {
+                background: transparent !important;
+                border: none !important;
+                color: white !important;
+                padding-left: 25px;
+            }
+
+            .cta-input-group input::placeholder {
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            .cta-btn {
+                background: #ffffff;
+                color: var(--primary-green) !important;
+                font-weight: 700;
+                padding: 12px 35px;
+                border-radius: 50px;
+                border: none;
+                transition: all 0.3s ease;
+            }
+
+            .cta-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                background: #f8f9fa;
+            }
+
+            /* Hiệu ứng nổi cho Icon Gift */
+            .floating-icon {
+                animation: floating 3s ease-in-out infinite;
+            }
+
+            @keyframes floating {
+                0% { transform: translate(0, 0) rotate(-15deg); }
+                50% { transform: translate(0, -20px) rotate(-10deg); }
+                100% { transform: translate(0, 0) rotate(-15deg); }
+            }
+            .post-img {
+                flex: 1;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                overflow: hidden; /* Cắt phần ảnh thừa nếu nó quá to */
+            }
+
+            .post-img img {
+                max-width: 100%; /* Đảm bảo không tràn ngang */
+                max-height: 200px; /* Khống chế chiều cao vừa vặn với card */
+                object-fit: contain; /* Giữ nguyên tỉ lệ ảnh, không bị bóp méo */
+                transition: all 0.5s ease;
+                filter: drop-shadow(5px 10px 15px rgba(0,0,0,0.1));
+            }
+
+            .featured-post-card:hover .post-img img {
+                transform: scale(1.1); /* Phóng to nhẹ khi di chuột vào */
+            }
+            .hot-scroll-wrapper {
+                display: flex;
+                overflow-x: auto;
+                gap: 20px;
+                padding: 10px 5px 25px 5px;
+                scroll-behavior: smooth;
+                /* Hiện scrollbar trên Firefox */
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary-green) #f1f1f1;
+            }
+
+
+            .hot-scroll-wrapper::-webkit-scrollbar {
+                display: block; /* Hiện lại thanh cuộn */
+                height: 6px; /* Độ dày thanh cuộn ngang */
+            }
+
+            .hot-scroll-wrapper::-webkit-scrollbar-track {
+                background: #f1f1f1;    /* Màu nền của đường chạy */
+                border-radius: 10px;
+            }
+
+            .hot-scroll-wrapper::-webkit-scrollbar-thumb {
+                background: var(--primary-green); /* Màu của thanh kéo */
+                border-radius: 10px;
+                transition: background 0.3s;
+            }
+
+            .hot-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+                background: var(--dark-green); /* Đậm hơn khi di chuột vào */
+            }
+
+            .hot-item-card {
+                min-width: 220px;
+                max-width: 220px;
+                background: white;
+                border-radius: 20px;
+                border: 1px solid rgba(0,0,0,0.05);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+                transition: all 0.3s ease;
+                position: relative;
+
+            }
+
+            .hot-item-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            }
+
+            .hot-img-box {
+                height: 160px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f8f9fa;
+                position: relative;
+            }
+
+            .hot-img-box img {
+                max-width: 80%;
+                max-height: 80%;
+                object-fit: contain;
+                transition: transform 0.5s ease;
+            }
+
+            .hot-item-card:hover .hot-img-box img {
+                transform: scale(1.1) rotate(-5deg);
+            }
+
+            /* Nhãn Top rực rỡ */
+            .top-badge {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background: linear-gradient(45deg, #f39c12, #e67e22);
+                color: white;
+                padding: 4px 12px;
+                border-radius: 50px;
+                font-weight: 800;
+                font-size: 12px;
+                z-index: 2;
+                box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+            }
+
+            .hot-content {
+                padding: 15px;
+            }
+
+            .hot-category {
+                font-size: 10px;
+                font-weight: 700;
+                color: #9ca3af;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            /* --- DUAL RANGE SLIDER --- */
+            .range-slider { position: relative; width: 100%; height: 35px; text-align: center; }
+            .range-slider input[type="range"] {
+                pointer-events: none; position: absolute; -webkit-appearance: none;
+                -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+                border: none; border-radius: 14px; background: none; box-shadow: none;
+                overflow: hidden; left: 0; top: 10px; width: 100%; outline: none; height: 10px; margin: 0; padding: 0;
+            }
+            .range-slider input[type="range"]::-webkit-slider-thumb {
+                pointer-events: all; position: relative; z-index: 1; outline: 0;
+                -webkit-appearance: none; width: 18px; height: 18px; border: none;
+                border-radius: 50%; background: var(--primary-green); cursor: pointer;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            .slider-track { position: absolute; left: 0; right: 0; top: 14px; height: 4px; background: #e5e7eb; border-radius: 5px; z-index: 0; }
+            .slider-fill { position: absolute; top: 14px; height: 4px; background: var(--primary-green); z-index: 0; border-radius: 5px; }
+            /* Custom CSS cho Submenu (Menu đa cấp) Bootstrap 5 */
+            .dropdown-submenu { position: relative; }
+            .dropdown-submenu > .dropdown-menu {
+                top: 0; left: 100%; margin-top: -1px; display: none; border-radius: 0.5rem;
+            }
+            .dropdown-submenu:hover > .dropdown-menu { display: block; }
+            .dropdown-submenu > a::after {
+                display: block; content: " "; float: right; width: 0; height: 0;
+                border-color: transparent; border-style: solid; border-width: 5px 0 5px 5px;
+                border-left-color: #ccc; margin-top: 5px; margin-right: -10px;
+            }
+            .dropdown-submenu:hover > a::after { border-left-color: #da291c; }
+
+            :root {
+                --primary-green: #0f9d58; --dark-green: #0b7a43;
+                --light-green: #e6f4ea; --black-text: #1f2937; --gray-text: #6b7280;
+            }
+
+            body { background-color: #f3f4f6; font-family: 'Poppins', sans-serif; color: var(--black-text); }
+
+            /* --- SIDEBAR STYLING --- */
+            .sidebar-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); padding: 20px; position: sticky; top: 20px; }
+            .filter-title { font-weight: 700; color: var(--black-text); font-size: 16px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--light-green); padding-bottom: 10px; display: inline-block; }
+
+            /* Custom Checkbox Color */
+            .form-check-input:checked { background-color: var(--primary-green); border-color: var(--primary-green); }
+            .form-check-input { cursor: pointer; }
+            .form-check-label { cursor: pointer; font-size: 14px; }
+            .form-check { margin-bottom: 10px; }
+
+            .category-link { display: flex; align-items: center; padding: 12px 15px; color: var(--gray-text); text-decoration: none; border-radius: 10px; transition: all 0.2s ease; font-weight: 500; font-size: 14px; margin-bottom: 5px; }
+            .category-link i { margin-right: 10px; width: 20px; text-align: center; }
+            .category-link:hover, .category-link.active { background-color: var(--primary-green); color: white; transform: translateX(5px); box-shadow: 0 4px 12px rgba(15, 157, 88, 0.2); }
+
+            /* --- PRODUCT CARD STYLING --- */
+            .product-card { background: white; border-radius: 16px; border: none; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: relative; height: 100%; }
+            .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+            .card-img-wrapper { position: relative; overflow: hidden; height: 220px; background: #f9fafb; }
+            .card-img-top { width: 100%; height: 100%; object-fit: contain; padding: 15px; transition: transform 0.5s ease; }
+            .product-card:hover .card-img-top { transform: scale(1.1); }
+
+            /* Overlay Action Buttons */
+            .card-actions { position: absolute; bottom: -50px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; transition: bottom 0.3s ease; padding-bottom: 15px; }
+            .product-card:hover .card-actions { bottom: 0; }
+            .action-btn { width: 40px; height: 40px; border-radius: 50%; background: white; color: var(--black-text); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.2s; text-decoration: none; }
+            .action-btn:hover { background: var(--primary-green); color: white; }
+
+            /* Phần nội dung card */
+            .card-body { padding: 15px; }
+            .product-category { font-size: 12px; color: #9ca3af; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+            .product-name { font-size: 15px; font-weight: 600; color: var(--black-text); margin-bottom: 8px; line-height: 1.4; height: 42px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+            .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+            .price-tag { color: var(--primary-green); font-size: 18px; font-weight: 700; }
+
+            /* --- BANNER & SORT BAR --- */
+            .banner-container { border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+            .sort-bar { background: white; border-radius: 12px; padding: 10px 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); display: flex; align-items: center; }
+
+            .fixed-top {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                right: 0;
+                width: 100% !important;
+                z-index: 2000;
+                background-color: rgba(255, 255, 255, 0.98) !important;
+                backdrop-filter: blur(10px);
+                border-bottom: 2px solid transparent !important;
+                transition: all 0.3s ease-in-out;
+            }
+
+
+
+            /* Đảm bảo nội dung không bị đẩy khi Nav dính */
+            body {
+                padding-top: 85px !important;
+                margin: 0;
+            }
+        </style>
+    </head>
+
+    <body>
+
+    <div th:replace="~{navigation :: header}"></div>
+
+
+    <div class="container mt-4 mb-5">
+        <div class="row mb-5">
+            <div class="col-12">
+                <div id="shopeeBanner" class="carousel slide banner-container" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div th:each="b, iter : ${banners}" class="carousel-item" th:classappend="${iter.index == 0} ? 'active'">
+                            <img th:src="@{${(b.image != null and #strings.startsWith(b.image, 'http')) ? b.image : '/hinhanh/' + b.image}}"
+                                 class="d-block w-100" style="height: 380px; object-fit: cover;">
+                        </div>
                     </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#shopeeBanner" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#shopeeBanner" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-5 px-3" th:if="${hotProducts != null and !hotProducts.isEmpty()}">
+            <div class="col-12 glass-card p-4 shadow-sm" style="background: white; border-radius: 25px;">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <span class="text-danger fw-bold small text-uppercase mb-1 d-block" style="letter-spacing: 2px;">Trending Now</span>
+                        <h3 class="fw-bold mb-0"><i class="fa-solid fa-fire me-2" style="color: #ff4757;"></i>SẢN PHẨM HOT TRONG THÁNG</h3>
+                    </div>
+                    <a href="/product/banchay" class="text-decoration-none fw-bold text-dark small">Xem tất cả <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+
+                <div class="hot-scroll-wrapper">
+                    <div class="hot-item-card" th:each="hp : ${hotProducts}">
+                        <div class="top-badge">Top <span th:text="${hpStat.count}">1</span></div>
+
+                        <div class="hot-img-box">
+                            <img th:src="@{${(hp.image != null and #strings.startsWith(hp.image, 'http')) ? hp.image : '/hinhanh/' + (hp.image != null ? hp.image : 'R.jpg')}}" alt="">
+                        </div>
+
+                        <div class="hot-content">
+                            <div class="hot-category mb-1" th:text="${hp.category != null ? hp.category.name : 'Sneaker'}">Sneaker</div>
+                            <a th:href="@{/product/detail(id=${hp.id})}" class="text-decoration-none">
+                                <h6 class="fw-bold text-dark text-truncate mb-2" style="font-size: 14px;" th:text="${hp.name}">Tên sản phẩm</h6>
+                            </a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary" style="font-size: 16px;" th:text="'₫' + ${#numbers.formatDecimal(hp.price, 0, 'COMMA', 0, 'POINT')}">Price</span>
+                                <a th:href="@{/product/detail(id=${hp.id})}" class="btn btn-dark btn-sm rounded-circle shadow-sm">
+                                    <i class="fa-solid fa-plus"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mb-5" th:if="${hotProducts != null and hotProducts.size() >= 2}">
+            <div class="col-md-6">
+                <div class="featured-post-card spotlight-left shadow-sm">
+                    <div class="post-content">
+                        <span class="badge bg-warning text-dark mb-2">Editor's Choice</span>
+                        <h3 class="fw-bold" th:text="${hotProducts[0].name}">Tên sản phẩm 1</h3>
+                        <p class="text-muted small">Khám phá phong cách đẳng cấp và sự thoải mái tối đa trong từng bước chân.</p>
+                        <a th:href="@{/product/detail(id=${hotProducts[0].id})}" class="btn btn-dark btn-sm rounded-pill px-4">Khám phá ngay</a>
+                    </div>
+                    <div class="post-img">
+                        <img th:src="@{${(hotProducts[0].image != null and #strings.startsWith(hotProducts[0].image, 'http')) ? hotProducts[0].image : '/hinhanh/' + hotProducts[0].image}}" alt="Featured 1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="featured-post-card spotlight-right shadow-sm">
+                    <div class="post-content">
+                        <span class="badge bg-danger mb-2">Hot Trend</span>
+                        <h3 class="fw-bold" th:text="${hotProducts[1].name}">Tên sản phẩm 2</h3>
+                        <p class="text-muted small">Công nghệ tiên tiến giúp bạn luôn nổi bật và tràn đầy năng lượng mỗi ngày.</p>
+                        <a th:href="@{/product/detail(id=${hotProducts[1].id})}" class="btn btn-success btn-sm rounded-pill px-4">Mua với ưu đãi</a>
+                    </div>
+                    <div class="post-img">
+                        <img th:src="@{${(hotProducts[1].image != null and #strings.startsWith(hotProducts[1].image, 'http')) ? hotProducts[1].image : '/hinhanh/' + hotProducts[1].image}}" alt="Featured 2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mb-5 mt-2">
+            <div class="col-md-3 col-6">
+                <div class="p-3 text-center bg-white rounded-4 shadow-sm h-100 border-bottom border-success border-3">
+                    <i class="fa-solid fa-truck-fast text-success fs-3 mb-2"></i>
+                    <h6 class="fw-bold mb-1" style="font-size: 14px;">Giao hàng nhanh</h6>
+                    <p class="text-muted small mb-0">Toàn quốc trong 2-3 ngày</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3 text-center bg-white rounded-4 shadow-sm h-100 border-bottom border-primary border-3">
+                    <i class="fa-solid fa-rotate text-primary fs-3 mb-2"></i>
+                    <h6 class="fw-bold mb-1" style="font-size: 14px;">Đổi trả dễ dàng</h6>
+                    <p class="text-muted small mb-0">Trong vòng 7 ngày</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3 text-center bg-white rounded-4 shadow-sm h-100 border-bottom border-warning border-3">
+                    <i class="fa-solid fa-shield-check text-warning fs-3 mb-2"></i>
+                    <h6 class="fw-bold mb-1" style="font-size: 14px;">Bảo hành 6 tháng</h6>
+                    <p class="text-muted small mb-0">Lỗi từ nhà sản xuất</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3 text-center bg-white rounded-4 shadow-sm h-100 border-bottom border-danger border-3">
+                    <i class="fa-solid fa-headset text-danger fs-3 mb-2"></i>
+                    <h6 class="fw-bold mb-1" style="font-size: 14px;">Hỗ trợ 24/7</h6>
+                    <p class="text-muted small mb-0">Hotline: 0987.xxx.xxx</p>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="product-section">
+            <aside class="col-lg-3 mb-4">
+                <div class="sidebar-card">
+                    <div class="filter-title"><i class="fa-solid fa-tags me-2"></i> Thương hiệu</div>
+
+                    <div class="mb-4 border-bottom pb-3">
+                        <div class="form-check">
+                            <input class="form-check-input shadow-none" type="checkbox" id="brandAll"
+                                   th:checked="${param.bid == null or param.bid[0] == ''}"
+                                   onclick="clearFilter('bid')">
+                            <label class="form-check-label fw-bold text-dark" for="brandAll">Tất cả thương hiệu</label>
+                        </div>
+                        <div class="form-check" th:each="b : ${brands}">
+                            <input class="form-check-input shadow-none" type="checkbox"
+                                   th:id="'brand_' + ${b.id}"
+                                   th:checked="${param.bid != null and #lists.contains(#strings.arraySplit(param.bid[0], ','), b.id.toString())}"
+                                   th:onclick="'applyFilter(\'bid\', ' + ${b.id} + ')'">
+                            <label class="form-check-label" th:for="'brand_' + ${b.id}" th:text="${b.name}">Tên Brand</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-title mt-2"><i class="fa-solid fa-layer-group me-2"></i> Danh mục</div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input shadow-none" type="checkbox" id="catAll"
+                                   th:checked="${param.cid == null or param.cid[0] == ''}"
+                                   onclick="clearFilter('cid')">
+                            <label class="form-check-label fw-bold text-dark" for="catAll">Tất cả sản phẩm</label>
+                        </div>
+                        <div class="form-check" th:each="c : ${categories}">
+                            <input class="form-check-input shadow-none" type="checkbox"
+                                   th:id="'cat_' + ${c.id}"
+                                   th:checked="${param.cid != null and #lists.contains(#strings.arraySplit(param.cid[0], ','), c.id.toString())}"
+                                   th:onclick="'applyFilter(\'cid\', ' + ${c.id} + ')'">
+                            <label class="form-check-label" th:for="'cat_' + ${c.id}" th:text="${c.name}">Tên Category</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-title mt-2"><i class="fa-solid fa-money-bill-wave me-2"></i> Khoảng giá</div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2 text-dark" style="font-size: 13px; font-weight: 600;">
+                            <span id="minPriceLabel">0₫</span>
+                            <span id="maxPriceLabel">5,000,000₫</span>
+                        </div>
+                        <div class="range-slider mb-3">
+                            <div class="slider-track"></div>
+                            <div class="slider-fill" id="sliderFill"></div>
+                            <input type="range" min="0" max="5000000" step="50000" value="0" id="sliderMin" oninput="updateSlider()">
+                            <input type="range" min="0" max="5000000" step="50000" value="5000000" id="sliderMax" oninput="updateSlider()">
+                        </div>
+                        <button class="btn btn-sm btn-outline-success w-100 fw-bold rounded-pill" onclick="applyPriceFilter()">Lọc Giá</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="col-lg-9">
+                <div class="sort-bar">
+                    <span class="text-muted me-3 fs-6"><i class="fa-solid fa-arrow-down-short-wide me-1"></i> Sắp xếp theo:</span>
+                    <div class="d-flex gap-2">
+
+                        <a th:href="@{/home(cid=${param.cid}, bid=${param.bid}, min=${param.min}, max=${param.max}, keyword=${param.keyword})}"
+                           class="btn btn-sm rounded-pill px-3"
+                           th:classappend="${currentUri == '/home'} ? 'btn-dark' : 'btn-light border'">
+                            Mới nhất
+                        </a>
+
+                        <a th:href="@{/product/banchay(cid=${param.cid}, bid=${param.bid}, min=${param.min}, max=${param.max}, keyword=${param.keyword})}"
+                           class="btn btn-sm rounded-pill px-3"
+                           th:classappend="${currentUri == '/product/banchay'} ? 'btn-dark' : 'btn-light border'">
+                            Bán chạy
+                        </a>
+
+                        <a th:href="@{/product/loctheogia(cid=${param.cid}, bid=${param.bid}, min=${param.min}, max=${param.max}, keyword=${param.keyword}, sort=${sort == 'asc' ? 'desc' : 'asc'})}"
+                           class="btn btn-sm rounded-pill px-3"
+                           th:classappend="${currentUri == '/product/loctheogia'} ? 'btn-dark' : 'btn-light border'">
+                            Giá <i class="fa-solid fa-sort"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row g-4" th:if="${items != null and !items.isEmpty()}">
+                    <div class="col-6 col-md-4" th:each="p : ${items}">
+                        <div class="product-card h-100">
+                            <div class="card-img-wrapper">
+                                <img th:src="@{${(p.image != null and #strings.startsWith(p.image, 'http')) ? p.image : '/hinhanh/' + (p.image != null ? p.image : 'R.jpg')}}"
+                                     class="card-img-top" th:alt="${p.name}">
+
+                                <div class="card-actions">
+                                    <a th:href="@{/product/detail(id=${p.id})}" class="action-btn" title="Xem chi tiết">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                </div>
+                                <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded-2 small fw-bold" style="font-size: 11px;">HOT</span>
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="product-category" th:text="${p.category != null ? p.category.name : 'Khác'}">Danh mục</div>
+
+                                <a th:href="@{/product/detail(id=${p.id})}" class="text-decoration-none">
+                                    <h6 class="product-name" th:text="${p.name}">Tên sản phẩm</h6>
+                                </a>
+
+                                <div class="price-row">
+                                    <span class="price-tag" th:text="'₫' + ${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                                    <a th:href="@{/product/detail(id=${p.id})}" class="btn btn-sm btn-outline-success rounded-circle d-lg-none">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" th:if="${items == null or items.isEmpty()}">
+                    <div class="col-12 text-center py-5 mt-4">
+                        <div class="mb-3">
+                            <i class="fa-solid fa-box-open text-muted opacity-50" style="font-size: 5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Chưa có mặt hàng!</h5>
+                        <p class="text-muted mb-4">Chúng tôi hiện chưa có sản phẩm nào phù hợp với bộ lọc của bạn. Cảm ơn quý khách đã quan tâm!</p>
+                        <a href="/home" class="btn btn-outline-success rounded-pill px-4">
+                            <i class="fa-solid fa-rotate-right me-2"></i>Xóa bộ lọc
+                        </a>
+                    </div>
+                </div>
+
+                <nav th:if="${page != null and page.totalPages > 1}" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{${currentUri}(cid=${param.cid}, bid=${param.bid}, min=${param.min}, max=${param.max}, keyword=${param.keyword}, sort=${param.sort}, p=${page.number - 1})}">
+                                <i class="fa-solid fa-angle-left"></i> Trang trước
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                            th:classappend="${page.number == i} ? 'active'">
+                            <a class="page-link" th:href="@{${currentUri}(cid=${param.cid}, bid=${param.bid}, min=${param.min}, max=${param.max}, keyword=${param.keyword}, sort=${param.sort}, p=${i})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{${currentUri}(cid=${param.cid}, bid=${param.bid}, min=${param.min}, max=${param.max}, keyword=${param.keyword}, sort=${param.sort}, p=${page.number + 1})}">
+                                Trang sau <i class="fa-solid fa-angle-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </main>
+        </div>
+        <div class="cta-banner shadow">
+            <div class="row align-items-center">
+                <div class="col-md-7 text-center text-md-start">
+                    <h2 class="display-5 fw-bold mb-3">Săn Ưu Đãi Ngay!</h2>
+                    <p class="fs-5 opacity-75 mb-4">Đăng ký thành viên để nhận voucher giảm giá 10% cho đơn hàng đầu tiên.</p>
+                    <div class="d-flex gap-2 justify-content-center justify-content-md-start">
+                        <input type="text" class="form-control form-control-lg rounded-pill border-0 px-4 w-50 shadow-sm" placeholder="Email của bạn...">
+                        <button class="btn btn-dark btn-lg rounded-pill px-4 shadow">Đăng Ký</button>
+                    </div>
+                </div>
+                <div class="col-md-5 d-none d-md-block text-center">
+                    <i class="fa-solid fa-gift" style="font-size: 180px; opacity: 0.15; transform: rotate(-15deg);"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <aside class="col-md-2">
-            <div class="filter-title">Danh mục</div>
-            <nav>
-                <a th:href="@{/home}" class="filter-item" th:classappend="${param.cid == null} ? 'active' : ''">Tất cả</a>
-                <a th:each="c : ${categories}" th:href="@{|/home?cid=${c.id}|}" class="filter-item"
-                   th:classappend="${param.cid != null and param.cid[0] == c.id.toString()} ? 'active' : ''"
-                   th:text="${c.name}"></a>
-            </nav>
-        </aside>
+    <script>
+        // 1. Hàm lọc Multi-choice chuẩn (Duy nhất 1 hàm này thôi nhé bro)
+        function applyFilter(paramName, paramValue) {
+            const url = new URL(window.location.href);
+            let currentValues = url.searchParams.get(paramName);
+            let valuesArray = currentValues ? currentValues.split(',') : [];
+            let valStr = paramValue.toString();
 
-        <main class="col-md-10">
-            <div class="d-flex bg-white p-3 mb-3 rounded-3 shadow-sm align-items-center">
-                <span class="text-muted me-3">Sắp xếp:</span>
-                <button class="btn btn-sm btn-dark me-2">Mới nhất</button>
-                <button class="btn btn-sm btn-outline-dark me-2">Bán chạy</button>
-            </div>
+            if (valuesArray.includes(valStr)) {
+                valuesArray = valuesArray.filter(v => v !== valStr);
+            } else {
+                valuesArray.push(valStr);
+            }
 
-            <div class="row g-3">
-                <div class="col-6 col-md-4 col-lg-2-4" th:each="p : ${items}">
-                    <a th:href="@{/product/detail(id=${p.id})}" class="text-decoration-none">
-                        <div class="card h-100 product-card shadow-sm">
-                            <img th:src="@{${(p.image != null and #strings.startsWith(p.image, 'http')) ? p.image : '/hinhanh/' + (p.image != null ? p.image : 'R.jpg')}}"
-                                 class="card-img-top" style="height: 200px; object-fit: cover;">
+            if (valuesArray.length > 0) {
+                url.searchParams.set(paramName, valuesArray.join(','));
+            } else {
+                url.searchParams.delete(paramName);
+            }
 
-                            <div class="card-body p-3 d-flex flex-column">
-                                <h6 class="product-name" th:text="${p.name}"></h6>
-                                <div class="mt-auto d-flex justify-content-between align-items-center">
-                                    <span class="price-tag" th:text="'₫' + ${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}"></span>
-                                </div>
-                                <button class="btn-green w-100 mt-2">Xem chi tiết</button>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </main>
-    </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Hàm này gọi khi nhấn nút "Thêm vào giỏ hàng"
-    $('.btn-add-to-cart').click(function(e) {
-        e.preventDefault(); // Ngăn chặn load trang
+            url.searchParams.delete('p'); // Reset trang về 0
+            window.location.href = url.toString();
+        }
 
-        let formData = {
-            productId: $('input[name="productId"]').val(),
-            variantId: $('input[name="variantId"]:checked').val(),
-            quantity: $('input[name="quantity"]').val()
-        };
+        function clearFilter(paramName) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(paramName);
+            url.searchParams.delete('p');
+            window.location.href = url.toString();
+        }
 
-        $.post('/cart/add-ajax', formData, function(response) {
-            // response trả về số lượng mới từ server
-            $('.badge').text(response).addClass('cart-bounce');
+        // 2. Logic Slider Giá
+        function updateSlider() {
+            let minVal = parseInt(document.getElementById("sliderMin").value);
+            let maxVal = parseInt(document.getElementById("sliderMax").value);
 
-            // Xóa hiệu ứng sau khi chạy xong để lần sau bấm lại có tiếp
-            setTimeout(function() {
-                $('.badge').removeClass('cart-bounce');
-            }, 500);
+            if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
 
-            alert("Đã thêm vào giỏ hàng thành công!");
+            document.getElementById("minPriceLabel").innerText = minVal.toLocaleString('vi-VN') + '₫';
+            document.getElementById("maxPriceLabel").innerText = maxVal.toLocaleString('vi-VN') + '₫';
+
+            let maxLimit = parseInt(document.getElementById("sliderMax").max);
+            let percentMin = (minVal / maxLimit) * 100;
+            let percentMax = (maxVal / maxLimit) * 100;
+
+            let fill = document.getElementById("sliderFill");
+            fill.style.left = percentMin + "%";
+            fill.style.width = (percentMax - percentMin) + "%";
+        }
+
+        function applyPriceFilter() {
+            let minVal = document.getElementById("sliderMin").value;
+            let maxVal = document.getElementById("sliderMax").value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('min', minVal);
+            url.searchParams.set('max', maxVal);
+            url.searchParams.delete('p');
+            window.location.href = url.toString();
+        }
+
+        // 3. Xử lý khi load trang (Scroll & Nhớ vị trí slider)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+
+
+            const minVal = urlParams.get('min') || 0;
+            const maxVal = urlParams.get('max') || 5000000;
+
+            const  sliderMin = document.getElementById("sliderMin");
+            const sliderMax = document.getElementById("sliderMax");
+
+            if (sliderMin && sliderMax) {
+                sliderMin.value = minVal;
+                sliderMax.value = maxVal;
+
+                updateSlider();
+            }
+
+            const hasFilter = Array.from(urlParams.keys()).some(k => ['cid','bid','min','max','keyword','p'].includes(k));
+            if (hasFilter) {
+                const section = document.getElementById('product-section');
+                if (section) {
+                    window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
+                }
+            }
         });
-    });
-</script>
-</body>
-</html>
+
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.fixed-top');
+            if (nav) {
+                if (window.scrollY > 10) {
+                    nav.style.setProperty('border-bottom', '2px solid var(--primary-green)', 'important');
+                    nav.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+                } else {
+                    nav.style.setProperty('border-bottom', '2px solid transparent', 'important');
+                    nav.style.boxShadow = "none";
+                }
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </body>
+    </html>

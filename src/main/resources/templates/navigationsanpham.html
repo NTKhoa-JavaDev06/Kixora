@@ -67,20 +67,25 @@
                     </ul>
                 </li>
             </div>
-            <a class="nav-link fw-semibold" href="/sanpham">Tất cả sản phẩm</a>
-
-            <form th:action="@{${currentUri != null ? currentUri : '/home'}}" method="get" class="d-flex w-50 mx-auto">
+            <form th:action="@{/sanpham}" method="get" class="d-flex w-50 mx-auto">
                 <div class="input-group shadow-sm rounded-pill overflow-hidden border bg-white">
-                    <input type="text" name="keyword" class="form-control border-0 shadow-none ps-3 py-2"
+                    <input type="text" name="keyword" class="form-control border-0 shadow-none ps-4 py-2"
                            placeholder="Bạn muốn tìm giày gì hôm nay?"
-                           th:value="${keyword}"> <button class="btn btn-success px-4" type="submit">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+                           th:value="${keyword}">
+
+                    <a th:href="@{/sanpham}" class="btn border-0 bg-transparent text-muted py-2"
+                       th:if="${keyword != null and keyword != '' or param.size != null or param.color != null}"
+                       title="Xóa bộ lọc">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+
+                    <button class="btn btn-success px-4" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
                 </div>
-                <input type="hidden" name="cid" th:if="${param.cid != null}" th:value="${param.cid}">
-                <input type="hidden" name="bid" th:if="${param.bid != null}" th:value="${param.bid}">
-                <input type="hidden" name="min" th:if="${param.min != null}" th:value="${param.min}">
-                <input type="hidden" name="max" th:if="${param.max != null}" th:value="${param.max}">
+
+                <input type="hidden" name="size" th:each="s : ${param.size}" th:value="${s}">
+                <input type="hidden" name="color" th:each="c : ${param.color}" th:value="${c}">
             </form>
 
             <div class="d-flex align-items-center ms-auto">
