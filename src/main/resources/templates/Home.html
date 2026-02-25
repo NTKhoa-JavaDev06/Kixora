@@ -656,67 +656,114 @@
             <div class="row align-items-center">
                 <div class="col-md-7 text-center text-md-start">
                     <h2 class="display-5 fw-bold mb-3">Săn Ưu Đãi Ngay!</h2>
-                    <p class="fs-5 opacity-75 mb-4">Đăng ký thành viên để nhận voucher giảm giá 10% cho đơn hàng đầu tiên.</p>
-                    <div class="d-flex gap-2 justify-content-center justify-content-md-start">
-                        <input type="text" class="form-control form-control-lg rounded-pill border-0 px-4 w-50 shadow-sm" placeholder="Email của bạn...">
-                        <button class="btn btn-dark btn-lg rounded-pill px-4 shadow">Đăng Ký</button>
-                    </div>
+                    <p class="fs-5 opacity-75 mb-4">Đăng ký thành viên để nhận thông báo và voucher giảm giá sớm nhất khi có sự kiện.</p>
+
+                    <form id="subscribeForm" class="d-flex gap-2 justify-content-center justify-content-md-start">
+                        <input type="email" id="subEmail" class="form-control form-control-lg rounded-pill border-0 px-4 w-50 shadow-sm" placeholder="Email của bạn..." required>
+                        <button type="submit" id="btnSubscribe" class="btn btn-dark btn-lg rounded-pill px-4 shadow">Đăng Ký</button>
+                    </form>
+                    <div id="subMessage" class="mt-3 fw-bold" style="display: none; font-size: 15px;"></div>
+
                 </div>
                 <div class="col-md-5 d-none d-md-block text-center">
-                    <i class="fa-solid fa-gift" style="font-size: 180px; opacity: 0.15; transform: rotate(-15deg);"></i>
+                    <i class="fa-solid fa-gift floating-icon" style="font-size: 180px; opacity: 0.15;"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. Hàm lọc Multi-choice chuẩn (Duy nhất 1 hàm này thôi nhé bro)
-        function applyFilter(paramName, paramValue) {
-            const url = new URL(window.location.href);
-            let currentValues = url.searchParams.get(paramName);
-            let valuesArray = currentValues ? currentValues.split(',') : [];
-            let valStr = paramValue.toString();
+        <script>
+            // XỬ LÝ FORM ĐĂNG KÝ NHẬN VOUCHER BẰNG AJAX (Không load trang)
+            document.getElementById('subscribeForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Chặn hành động submit mặc định của form
 
-            if (valuesArray.includes(valStr)) {
-                valuesArray = valuesArray.filter(v => v !== valStr);
-            } else {
-                valuesArray.push(valStr);
-            }
+            const emailInput = document.getElementById('subEmail');
+            const btn = document.getElementById('btnSubscribe');
+            const msg = document.getElementById('subMessage');
+            const emailVal = emailInput.value;
 
-            if (valuesArray.length > 0) {
-                url.searchParams.set(paramName, valuesArray.join(','));
-            } else {
-                url.searchParams.delete(paramName);
-            }
+            // Hiệu ứng đang xử lý
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+            btn.disabled = true;
+            msg.style.display = 'none';
 
-            url.searchParams.delete('p'); // Reset trang về 0
-            window.location.href = url.toString();
+            try {
+            // Gửi dữ liệu về backend Spring Boot
+            let response = await fetch('/api/subscribe', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'email=' + encodeURIComponent(emailVal)
+        });
+
+            if(response.ok) {
+            // Thành công
+            msg.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Đăng ký thành công! Kixora sẽ gửi mã cho bro sớm nhất.';
+            msg.className = "mt-3 fw-bold text-warning"; // Chữ vàng nổi bật trên nền xanh
+            emailInput.value = ''; // Xóa trắng ô nhập
+        } else {
+            // Bị trùng email hoặc lỗi
+            let errorText = await response.text();
+            msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> ' + errorText;
+            msg.className = "mt-3 fw-bold text-dark";
         }
-
-        function clearFilter(paramName) {
-            const url = new URL(window.location.href);
-            url.searchParams.delete(paramName);
-            url.searchParams.delete('p');
-            window.location.href = url.toString();
+        } catch (error) {
+            msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Mất kết nối đến máy chủ!';
+            msg.className = "mt-3 fw-bold text-danger";
+        } finally {
+            msg.style.display = 'block';
+            btn.innerHTML = 'Đăng Ký';
+            btn.disabled = false;
         }
+        });
+    </script>
+    // 1. Hàm lọc Multi-choice chuẩn (Duy nhất 1 hàm này thôi nhé bro)
+    function applyFilter(paramName, paramValue) {
+    const url = new URL(window.location.href);
+    let currentValues = url.searchParams.get(paramName);
+    let valuesArray = currentValues ? currentValues.split(',') : [];
+    let valStr = paramValue.toString();
 
-        // 2. Logic Slider Giá
-        function updateSlider() {
-            let minVal = parseInt(document.getElementById("sliderMin").value);
-            let maxVal = parseInt(document.getElementById("sliderMax").value);
+    if (valuesArray.includes(valStr)) {
+    valuesArray = valuesArray.filter(v => v !== valStr);
+    } else {
+    valuesArray.push(valStr);
+    }
 
-            if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+    if (valuesArray.length > 0) {
+    url.searchParams.set(paramName, valuesArray.join(','));
+    } else {
+    url.searchParams.delete(paramName);
+    }
 
-            document.getElementById("minPriceLabel").innerText = minVal.toLocaleString('vi-VN') + '₫';
-            document.getElementById("maxPriceLabel").innerText = maxVal.toLocaleString('vi-VN') + '₫';
+    url.searchParams.delete('p'); // Reset trang về 0
+    window.location.href = url.toString();
+    }
 
-            let maxLimit = parseInt(document.getElementById("sliderMax").max);
-            let percentMin = (minVal / maxLimit) * 100;
-            let percentMax = (maxVal / maxLimit) * 100;
+    function clearFilter(paramName) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete(paramName);
+    url.searchParams.delete('p');
+    window.location.href = url.toString();
+    }
 
-            let fill = document.getElementById("sliderFill");
-            fill.style.left = percentMin + "%";
-            fill.style.width = (percentMax - percentMin) + "%";
+    // 2. Logic Slider Giá
+    function updateSlider() {
+    let minVal = parseInt(document.getElementById("sliderMin").value);
+    let maxVal = parseInt(document.getElementById("sliderMax").value);
+
+    if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+
+    document.getElementById("minPriceLabel").innerText = minVal.toLocaleString('vi-VN') + '₫';
+    document.getElementById("maxPriceLabel").innerText = maxVal.toLocaleString('vi-VN') + '₫';
+
+    let maxLimit = parseInt(document.getElementById("sliderMax").max);
+    let percentMin = (minVal / maxLimit) * 100;
+    let percentMax = (maxVal / maxLimit) * 100;
+
+    let fill = document.getElementById("sliderFill");
+    fill.style.left = percentMin + "%";
+    fill.style.width = (percentMax - percentMin) + "%";
         }
 
         function applyPriceFilter() {
