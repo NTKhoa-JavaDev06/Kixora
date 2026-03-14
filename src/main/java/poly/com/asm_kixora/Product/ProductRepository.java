@@ -13,6 +13,8 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Products, Integer> {
+ @Query("SELECT SUM(od.quantity) FROM OrderDetails od WHERE od.productVariant.product.id = :pid")
+ Integer getSoldCountByProductId(@Param("pid") Integer pid);
 
  @Query("SELECT DISTINCT p FROM Products p WHERE " +
          "(:cids IS NULL OR p.category.id IN :cids) AND " +

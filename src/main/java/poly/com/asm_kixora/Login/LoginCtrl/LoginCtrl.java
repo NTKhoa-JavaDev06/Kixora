@@ -1,14 +1,13 @@
 package poly.com.asm_kixora.Login.LoginCtrl;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-// Nhớ thêm 2 cái import OAuth2 này nha bro
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import poly.com.asm_kixora.Login.Baomat.CookieService;
@@ -18,28 +17,23 @@ import java.util.Optional;
 
 @Controller
 public class LoginCtrl {
+
     @Autowired
     LoginRes res;
 
     @Autowired
     HttpSession session;
 
-
     @Autowired
     private CookieService cookieService;
 
     @GetMapping("/Login/login")
-    public String loginform(Model model){
+    public String loginform(Model model) {
         String user = cookieService.get("user_Account");
         String pass = cookieService.get("user_Password");
-        model.addAttribute("username", user != null ? user: "" );
-        model.addAttribute("password", pass != null ? pass: "" );
+        model.addAttribute("username", user != null ? user : "");
+        model.addAttribute("password", pass != null ? pass : "");
         return "Login/login";
-    }
-
-    @RequestMapping("/trangchu/index")
-    public String index() {
-        return "redirect:/home";
     }
 
     @RequestMapping("/login/check")
@@ -52,76 +46,73 @@ public class LoginCtrl {
 
         if (accOpt.isPresent()) {
             Accounts acc = accOpt.get();
+            // So sánh mật khẩu (Bro nên dùng BCrypt nếu làm thực tế nhé)
             if (acc.getPassword().equals(password)) {
                 session.setAttribute("user", acc);
 
+                // Xử lý Ghi nhớ mật khẩu
                 if (remember != null) {
-                    cookieService.create("user_Account", email, 10);
+                    cookieService.create("user_Account", email, 10); // 10 ngày
                     cookieService.create("user_Password", password, 10);
                 } else {
-                   cookieService.create("user_Account", "", 0);
-                    cookieService.create("user_Password", "", 0);
+                    cookieService.remove("user_Account");
+                    cookieService.remove("user_Password");
                 }
 
+                // Điều hướng dựa trên Role
                 if ("Admin".equalsIgnoreCase(acc.getRole())) {
-                    model.addAttribute("msg", "Chào Admin!");
-                      return "redirect:/admin/dashboard";
+                    return "redirect:/admin/dashboard";
                 } else {
-                    model.addAttribute("msg", "Đăng nhập thành công!");
-                    return "Home";
+                    return "redirect:/home"; // Đẩy về trang chủ cho User
                 }
             }
         }
 
-
+        // Nếu sai tài khoản/mật khẩu
         model.addAttribute("msg", "Tài khoản hoặc mật khẩu không chính xác!");
-        return "redirect:/home";
+        return "Login/login"; // Trả về trang login để hiện thông báo lỗi
     }
-    @GetMapping("/login/google/success")
-    public String googleLoginSuccess(@AuthenticationPrincipal OAuth2User oauth2User, HttpSession session) {
 
-        // 1. Lấy thông tin từ tài khoản Google của khách
+    @GetMapping("/login/google/success")
+    public String googleLoginSuccess(@AuthenticationPrincipal OAuth2User oauth2User) {
+        if (oauth2User == null) {
+            return "redirect:/Login/login";
+        }
+
         String email = oauth2User.getAttribute("email");
         String name = oauth2User.getAttribute("name");
-        String picture = oauth2User.getAttribute("picture"); // Avatar Google
+        String picture = oauth2User.getAttribute("picture");
 
-        System.out.println("🚀 [OAUTH2] Khách đang đăng nhập Google: " + email);
-
-        // 2. Tìm trong Database xem khách này từng đăng nhập chưa
         Optional<Accounts> accOpt = res.findByEmail(email);
         Accounts account;
 
         if (accOpt.isPresent()) {
-            // Nếu có rồi thì lấy ra xài
             account = accOpt.get();
         } else {
-            // Nếu là khách mới tinh -> Tự động tạo tài khoản cho họ
+            // Tự tạo account mới nếu chưa có trong DB
             account = new Accounts();
             account.setEmail(email);
             account.setFullname(name);
             account.setPhoto(picture);
-            account.setPassword(""); // Login Google thì không cần password
+            account.setPassword("");
             account.setRole("User");
             account.setActivated(true);
-
-            res.save(account); // Lưu thẳng xuống SQL Server
-            System.out.println("✅ [OAUTH2] Đã tự động tạo tài khoản mới cho: " + email);
+            res.save(account);
         }
 
-        // 3. Đưa thông tin vào Session (giống hệt cách đăng nhập truyền thống)
         session.setAttribute("user", account);
 
-
+        // Điều hướng
         if ("Admin".equalsIgnoreCase(account.getRole())) {
             return "redirect:/admin/dashboard";
         }
-
         return "redirect:/home";
     }
+
     @RequestMapping("/login/logout")
     public String logout() {
-
+        session.removeAttribute("user");
         session.invalidate();
-       return "redirect:/Login/login";
+        return "redirect:/Login/login";
     }
 }

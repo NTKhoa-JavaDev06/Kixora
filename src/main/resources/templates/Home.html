@@ -672,10 +672,11 @@
         </div>
     </div>
 
+    <div th:replace="~{footer :: footer}"></div>
+
     <script>
-        <script>
-            // XỬ LÝ FORM ĐĂNG KÝ NHẬN VOUCHER BẰNG AJAX (Không load trang)
-            document.getElementById('subscribeForm').addEventListener('submit', async function(e) {
+
+           document.getElementById('subscribeForm').addEventListener('submit', async function(e) {
             e.preventDefault(); // Chặn hành động submit mặc định của form
 
             const emailInput = document.getElementById('subEmail');
@@ -716,105 +717,8 @@
             btn.disabled = false;
         }
         });
-    </script>
-    // 1. Hàm lọc Multi-choice chuẩn (Duy nhất 1 hàm này thôi nhé bro)
-    function applyFilter(paramName, paramValue) {
-    const url = new URL(window.location.href);
-    let currentValues = url.searchParams.get(paramName);
-    let valuesArray = currentValues ? currentValues.split(',') : [];
-    let valStr = paramValue.toString();
-
-    if (valuesArray.includes(valStr)) {
-    valuesArray = valuesArray.filter(v => v !== valStr);
-    } else {
-    valuesArray.push(valStr);
-    }
-
-    if (valuesArray.length > 0) {
-    url.searchParams.set(paramName, valuesArray.join(','));
-    } else {
-    url.searchParams.delete(paramName);
-    }
-
-    url.searchParams.delete('p'); // Reset trang về 0
-    window.location.href = url.toString();
-    }
-
-    function clearFilter(paramName) {
-    const url = new URL(window.location.href);
-    url.searchParams.delete(paramName);
-    url.searchParams.delete('p');
-    window.location.href = url.toString();
-    }
-
-    // 2. Logic Slider Giá
-    function updateSlider() {
-    let minVal = parseInt(document.getElementById("sliderMin").value);
-    let maxVal = parseInt(document.getElementById("sliderMax").value);
-
-    if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
-
-    document.getElementById("minPriceLabel").innerText = minVal.toLocaleString('vi-VN') + '₫';
-    document.getElementById("maxPriceLabel").innerText = maxVal.toLocaleString('vi-VN') + '₫';
-
-    let maxLimit = parseInt(document.getElementById("sliderMax").max);
-    let percentMin = (minVal / maxLimit) * 100;
-    let percentMax = (maxVal / maxLimit) * 100;
-
-    let fill = document.getElementById("sliderFill");
-    fill.style.left = percentMin + "%";
-    fill.style.width = (percentMax - percentMin) + "%";
-        }
-
-        function applyPriceFilter() {
-            let minVal = document.getElementById("sliderMin").value;
-            let maxVal = document.getElementById("sliderMax").value;
-            const url = new URL(window.location.href);
-            url.searchParams.set('min', minVal);
-            url.searchParams.set('max', maxVal);
-            url.searchParams.delete('p');
-            window.location.href = url.toString();
-        }
-
-        // 3. Xử lý khi load trang (Scroll & Nhớ vị trí slider)
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
 
 
-            const minVal = urlParams.get('min') || 0;
-            const maxVal = urlParams.get('max') || 5000000;
-
-            const  sliderMin = document.getElementById("sliderMin");
-            const sliderMax = document.getElementById("sliderMax");
-
-            if (sliderMin && sliderMax) {
-                sliderMin.value = minVal;
-                sliderMax.value = maxVal;
-
-                updateSlider();
-            }
-
-            const hasFilter = Array.from(urlParams.keys()).some(k => ['cid','bid','min','max','keyword','p'].includes(k));
-            if (hasFilter) {
-                const section = document.getElementById('product-section');
-                if (section) {
-                    window.scrollTo({ top: section.offsetTop - 100, behavior: 'smooth' });
-                }
-            }
-        });
-
-        window.addEventListener('scroll', () => {
-            const nav = document.querySelector('.fixed-top');
-            if (nav) {
-                if (window.scrollY > 10) {
-                    nav.style.setProperty('border-bottom', '2px solid var(--primary-green)', 'important');
-                    nav.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
-                } else {
-                    nav.style.setProperty('border-bottom', '2px solid transparent', 'important');
-                    nav.style.boxShadow = "none";
-                }
-            }
-        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
